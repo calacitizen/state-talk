@@ -1,49 +1,567 @@
 <!doctype html>
 <html>
-	<head>
-		<meta charset="utf-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-		<title>reveal.js</title>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-		<link rel="stylesheet" href="css/reset.css">
-		<link rel="stylesheet" href="css/reveal.css">
-		<link rel="stylesheet" href="css/theme/black.css">
+	<title>reveal.js</title>
 
-		<!-- Theme used for syntax highlighting of code -->
-		<link rel="stylesheet" href="lib/css/monokai.css">
+	<link rel="stylesheet" href="css/reset.css">
+	<link rel="stylesheet" href="css/reveal.css">
+	<link rel="stylesheet" href="css/theme/beige.css">
 
-		<!-- Printing and PDF exports -->
-		<script>
-			var link = document.createElement( 'link' );
-			link.rel = 'stylesheet';
-			link.type = 'text/css';
-			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
-			document.getElementsByTagName( 'head' )[0].appendChild( link );
-		</script>
-	</head>
-	<body>
-		<div class="reveal">
-			<div class="slides">
-				<section>Slide 1</section>
-				<section>Slide 2</section>
-			</div>
+	<!-- Theme used for syntax highlighting of code -->
+	<link rel="stylesheet" href="lib/css/monokai.css">
+
+	<!-- Printing and PDF exports -->
+	<script>
+		var link = document.createElement('link');
+		link.rel = 'stylesheet';
+		link.type = 'text/css';
+		link.href = window.location.search.match(/print-pdf/gi) ? 'css/print/pdf.css' : 'css/print/paper.css';
+		document.getElementsByTagName('head')[0].appendChild(link);
+	</script>
+</head>
+
+<body>
+	<div class="reveal">
+		<div class="slides">
+			<section>
+				<h1>State & props</h1>
+				<img class="plain" style="background: none" src="img/tensor.png" alt="">
+			</section>
+			<section>
+					<h3>What is the difference between state and props?</h3>
+					<blockquote>
+						Props and state are both plain JavaScript objects. While both hold information that influences the output
+						of render, they are different in one important way: props get passed to the component whereas state is managed within the component.
+					</blockquote>
+				</section>
+			<section>
+				<img class="plain" style="background: none" src="img/redux.gif" alt="">
+			</section>
+			<section>
+				<img class="plain" style="background: none" src="img/vuex1.png" alt="">
+			</section>
+			<section>
+				<h1>FLUX</h1>
+			</section>
+			<section>
+				<h1>Reconciliation</h1>
+			</section>
+			<section>
+				<blockquote>
+						React provides a declarative API so that you don’t have to worry about exactly what changes on every update. This makes writing applications a lot easier, but it might not be obvious how this is implemented within React.
+				</blockquote>
+			</section>
+			<section>
+					<img class="plain" style="background: none" src="img/algfunc.gif" alt="">
+			</section>
+			<section>
+					<pre><code data-trim data-noescape>
+							class ClickCounter extends React.Component {
+								constructor(props) {
+									 super(props);
+									 this.state = {count: 0};
+									 this.handleClick = this.handleClick.bind(this);
+								}
+								handleClick() {
+									 this.setState((state) => {
+										  return {count: state.count + 1};
+									 });
+								}
+								componentDidUpdate() {}
+						  }
+					</code></pre>
+				</section>
+				<section>
+						<pre><code data-trim data-noescape>
+								render() {
+									return [
+									&lt;button key="1" onClick={this.handleClick}&gt;Update counter&lt;/button&gt;,
+									&lt;span key="2"&gt;{this.state.count}&lt;/span&gt;
+									]
+							  	}
+						</code></pre>
+				</section>
+				<section>
+						<pre><code data-trim data-noescape>
+								root.current = null;
+						</code></pre>
+				</section>
+				<section>
+					<h3>completeWork</h3>
+					<ul>
+						<li class="fragment">обновление свойства count в состоянии ClickCounter</li>
+						<li class="fragment">вызов метода render, для того чтобы получить список детей и провести сравнение</li>
+						<li class="fragment">обновление props для элемента span</li>
+					</ul>
+				</section>
+				<section>
+						<h3>commitRoot</h3>
+						<ul>
+							<li class="fragment">обновление свойства textContent у элемента span</li>
+							<li class="fragment">вызов lifecycle метода componentDidUpdate</li>
+						</ul>
+				</section>
+				<section>
+					<h3>Планирование обновления</h3>
+					<pre><code data-trim data-noescape>
+							class ClickCounter extends React.Component {
+								...
+								handleClick() {
+									 this.setState((state) => {
+										  return {count: state.count + 1};
+									 });
+								}
+						  }  
+					</code></pre>
+				</section>
+				<section>
+					<h1>updater</h1>
+				</section>
+				<section>
+					<h2>classComponentUpdater</h2>
+				</section>
+				<section>
+					<h2>Fiber Node</h2>
+				</section>
+				<section>
+						<pre><code class="hljs" data-trim data-noescape>
+								{
+								 stateNode: new ClickCounter,
+								 type: ClickCounter,
+								 updateQueue: {
+								  baseState: {count: 0}
+								   firstUpdate: {
+									 next: {
+									  payload: (state) => { return {count: state.count + 1} 
+									  }
+									 }
+								   },
+								   ...
+								  },
+								  ...
+							   }
+						</code></pre>
+				</section>
+				<section>
+					<h2>beginWork</h2>
+					<a href="https://github.com/facebook/react/blob/cbbc2b6c4d0d8519145560bd8183ecde55168b12/packages/react-reconciler/src/ReactFiberBeginWork.js#L1489">beginWork github link</a>
+				</section>
+				<section>
+						<pre><code data-trim data-noescape>
+								function beginWork(current$$1, workInProgress, ...) {
+									...
+									switch (workInProgress.tag) {
+										 ...
+										 case FunctionalComponent: {...}
+										 case ClassComponent:
+										 {
+											  ...
+											  return <mark>updateClassComponent</mark>();
+										 }
+										 case HostComponent: {...}
+										 case ...
+							  } 
+						</code></pre>
+				</section>
+				<section>
+						<h3><a href="https://github.com/facebook/react/blob/1034e26fe5e42ba07492a736da7bdf5bf2108bc6/packages/react-reconciler/src/ReactFiberBeginWork.js#L428">updateClassComponent github link</a></h3>
+						<pre><code data-trim data-noescape>
+								
+								function updateClassComponent(current, workInProgress, Component, ...) {
+									...
+									const instance = workInProgress.stateNode;
+									let shouldUpdate;
+									if (instance === null) {
+										 ...
+										 // если компонент не создан, нам нужно его создать.
+										 constructClassInstance();
+										 mountClassInstance();
+										 shouldUpdate = true;
+									} else if (current === null) {
+										 shouldUpdate = resumeMountClassInstance();
+									} else {
+										 shouldUpdate = <mark>updateClassInstance</mark>();
+									}
+									return finishClassComponent();
+							  }
+						</code></pre>
+				</section>
+				<section>
+					<h3>ClickCounter Fiber updateClassInstance</h3>
+					<ul>
+						<li class="fragment">UNSAFE_componentWillReceiveProps</li>
+						<li class="fragment">updateQueue и создание нового state</li>
+						<li class="fragment">getDerivedStateFromProps</li>
+						<li class="fragment">shouldComponentUpdate</li>
+						<li class="fragment">UNSAFE_componentWillUpdate</li>
+						<li class="fragment">componentDidUpdate</li>
+						<li class="fragment">state & props update</li>
+					</ul>
+				</section>
+				<section>
+						<pre><code data-trim data-noescape>
+								function updateClassInstance() {
+									const instance = workInProgress.stateNode;
+							  
+									const oldProps = workInProgress.memoizedProps;
+									instance.props = oldProps;
+									if (oldProps !== newProps) {
+										 callComponentWillReceiveProps();
+									}
+							  
+									let updateQueue = workInProgress.updateQueue;
+									if (updateQueue !== null) {
+										 processUpdateQueue();
+										 newState = workInProgress.memoizedState;
+									}
+							  
+									applyDerivedStateFromProps(workInProgress, ...);
+									newState = workInProgress.memoizedState;
+							  
+									const shouldUpdate = checkShouldComponentUpdate();
+									if (shouldUpdate) {
+										 instance.componentWillUpdate();
+										 workInProgress.effectTag |= Update;
+										 workInProgress.effectTag |= Snapshot;
+									}
+							  
+									instance.props = newProps;
+									instance.state = newState;
+							  
+									return shouldUpdate;
+							  }
+						</code></pre>
+				</section>
+				<section>
+						<h3>До</h3>
+						<pre><code data-trim data-noescape>
+								{
+									effectTag: 0,
+									elementType: class ClickCounter,
+									firstEffect: null,
+									memoizedState: {count: 0},
+									type: class ClickCounter,
+									stateNode: {
+									 state: {count: 0}
+									},
+									updateQueue: {
+									 baseState: {count: 0},
+									 firstUpdate: {
+									  next: {
+										payload: (state, props) => {…}
+									  }
+									 },
+									 ...
+									}
+								  }
+						</code></pre>
+				</section>
+				<section>
+						<h3>После</h3>
+						<pre><code data-trim data-noescape>
+								{
+									effectTag: 4,
+									elementType: class ClickCounter,
+									firstEffect: null,
+									memoizedState: {count: 1},
+									type: class ClickCounter,
+									stateNode: {
+									 state: {count: 1}
+									},
+									updateQueue: {
+									 baseState: {count: 1},
+									 firstUpdate: null,
+									 ...
+									}
+								  }
+						</code></pre>
+				</section>
+				<section>
+					<h3>parent update</h3>
+					<ul>
+						<li class="fragment">pre-mutation lifecycle methods</li>
+						<li class="fragment">обновление state</li>
+						<li class="fragment">определение побочных эффектов</li>
+					</ul>
+				</section>
+				<section>
+					<h3>finishClassComponent</h3>
+					<a href="https://github.com/facebook/react/blob/340bfd9393e8173adca5380e6587e1ea1a23cefa/packages/react-reconciler/src/ReactFiberBeginWork.js#L355">finishClassComponent github link</a>
+				</section>
+				<section>
+					<h3>reconcileChildrenArray</h3>
+					<a href="https://github.com/facebook/react/blob/95a313ec0b957f71798a69d8e83408f40e76765b/packages/react-reconciler/src/ReactChildFiber.js#L732">reconcileChildrenArray github link</a>
+					<ul>
+						<li class="fragment">создание или обновление Fiber ноды для детей и их React.Elemement</li>
+						<li class="fragment">Обновление props детей</li>
+					</ul>
+				</section>
+				<section>
+						<h3>Fiber before render</h3>
+						<pre><code data-trim data-noescape>
+								{
+									stateNode: new HTMLSpanElement,
+									type: "span",
+									key: "2",
+									memoizedProps: {children: 0},
+									pendingProps: {children: 0},
+									...
+							  }
+						</code></pre>
+				</section>
+				<section>
+						<h3>React.Element after render</h3>
+						<pre><code data-trim data-noescape>
+								{
+									$$typeof: Symbol(react.element)
+									key: "2"
+									props: {children: 1}
+									ref: null
+									type: "span"
+							  }
+						</code></pre>
+				</section>
+				<section>
+				<h3>
+					createWorkInProgress
+				</h3>
+				<a href="https://github.com/facebook/react/blob/769b1f270e1251d9dbdce0fcbd9e92e502d059b8/packages/react-reconciler/src/ReactFiber.js#L326">createWorkInProgress github link</a>
+						<pre><code data-trim data-noescape>
+								{
+									stateNode: new HTMLSpanElement,
+									type: "span",
+									key: "2",
+									memoizedProps: {children: 0},
+									pendingProps: {children: 1},
+									...
+							  }
+						</code></pre>
+			</section>
+			<section>
+					<h3>
+							beginWork
+					</h3>
+							<pre><code data-trim data-noescape>
+									function beginWork() {
+										...
+										switch (workInProgress.tag) {
+											 case FunctionalComponent: {...}
+											 case ClassComponent: {...}
+											 case HostComponent:
+												return <mark>updateHostComponent</mark>();
+											 case ...
+								  }
+							</code></pre>
+				</section>
+				<section>
+						<h3>
+								performUnitOfWork
+						</h3>
+								<pre><code data-trim data-noescape>
+										function performUnitOfWork(workInProgress) {
+											...
+											next = beginWork(current$$1, workInProgress, nextRenderExpirationTime);
+											<mark>workInProgress.memoizedProps</mark> = workInProgress.pendingProps;
+											...
+									  }
+								</code></pre>
+				</section>
+				<section>
+						<h3>
+								completeWork
+						</h3>
+								<pre><code data-trim data-noescape>
+										function completeWork() {
+											...
+											switch (workInProgress.tag) {
+												 case FunctionComponent: {...}
+												 case ClassComponent: {...}
+												 case HostComponent: {
+													  ...
+													  <mark>updateHostComponent</mark>();
+												 }
+												 case ...
+											}
+									  }}
+									  }
+								</code></pre>
+				</section>
+				<section>
+					<h3>updateHostComponent</h3>
+					<a href="https://github.com/facebook/react/blob/487f4bf2ee7c86176637544c5473328f96ca0ba2/packages/react-reconciler/src/ReactFiberBeginWork.js#L911">updateHostComponent github link</a>
+					<ul>
+						<li class="fragment">Подготовка обновления DOM</li>
+						<li class="fragment">добавляем Fiber ноду в updateQueue</li>
+						<li class="fragment">определяем побочные эффекты для обновления DOM</li>
+					</ul>
+				</section>
+				<section>
+					<h3>Fiber node before</h3>
+					<pre><code data-trim data-noescape>
+							{
+								stateNode: new HTMLSpanElement,
+								type: "span",
+								effectTag: 0
+								updateQueue: null
+								...
+						  }
+					</code></pre>
+				</section>
+				<section>
+						<h3>Fiber node after</h3>
+						<pre><code data-trim data-noescape>
+								{
+									stateNode: new HTMLSpanElement,
+									type: "span",
+									effectTag: 4,
+									updateQueue: ["children", "1"],
+									...
+							  }
+						</code></pre>
+					</section>
+					<section>
+						<h2>compliteUnitOfWork</h2>
+						<a href="https://github.com/facebook/react/blob/487f4bf2ee7c86176637544c5473328f96ca0ba2/packages/react-reconciler/src/ReactFiberScheduler.js#L961">compliteUnitOfWork github link</a>
+					</section>
+					<section>
+						<h3>Список побочных эффектов</h3>
+						<img class="plain" style="background: none" src="img/effects-1.png" alt="">
+					</section>
+					<section>
+							<h3>Линейный список побочных эффектов</h3>
+							<img class="plain" style="background: none" src="img/effects-2.png" alt="">
+					</section>
+					<section>
+						<h3>Commit phase</h3>
+						<ul>
+							<li class="fragment">Обход по списку побочных эффектов</li>
+							<li class="fragment">Обновление DOM</li>
+							<li class="fragment">Вызов хуков жизненого цикла после мутаций</li>
+						</ul>
+					</section>
+					<section>
+							<pre><code data-trim data-noescape>
+									{ type: ClickCounter, effectTag: 5 }
+									{ type: 'span', effectTag: 4 }
+							</code></pre>
+							<p>5 = 101 = componentDidUpdate</p>
+							<p>4 = 100 = updateDOM = textContent</p>
+					</section>
+					<section>
+						<h3>commitRoot</h3>
+						<a href="https://github.com/facebook/react/blob/487f4bf2ee7c86176637544c5473328f96ca0ba2/packages/react-reconciler/src/ReactFiberScheduler.js#L610">commitRoot github link</a>
+						<pre><code data-trim data-noescape>
+								function commitRoot(root, finishedWork) {
+									commitBeforeMutationLifecycles()
+									commitAllHostEffects();
+									root.current = finishedWork;
+									commitAllLifeCycles();
+							  }
+						</code></pre>
+					</section>
+					<section>
+							<h3>updateHostEffects</h3>
+							<a href="https://github.com/facebook/react/blob/487f4bf2ee7c86176637544c5473328f96ca0ba2/packages/react-reconciler/src/ReactFiberScheduler.js#L397">commitAllHostEffects github link</a>
+							<pre><code data-trim data-noescape>
+									function updateHostEffects() {
+										switch (primaryEffectTag) {
+										  case Placement: {...}
+										  case PlacementAndUpdate: {...}
+										  case Update:
+											 {
+												var current = nextEffect.alternate;
+												commitWork(current, nextEffect);
+												break;
+											 }
+										  case Deletion: {...}
+										}
+								  }
+							</code></pre>
+						</section>
+						<section>
+								<h3>updateDOMProperties</h3>
+								<a href="https://github.com/facebook/react/blob/487f4bf2ee7c86176637544c5473328f96ca0ba2/packages/react-dom/src/client/ReactDOMComponent.js#L352">updateDOMProperties github link</a>
+								<pre><code data-trim data-noescape>
+										function updateDOMProperties(domElement, updatePayload, ...) {
+											for (let i = 0; i < updatePayload.length; i += 2) {
+											  const propKey = updatePayload[i];
+											  const propValue = updatePayload[i + 1];
+											  if (propKey === STYLE) { ...} 
+											  else if (propKey === DANGEROUSLY_SET_INNER_HTML) {...} 
+											  else if (propKey === CHILDREN) {
+												 <mark>setTextContent</mark>(domElement, propValue);
+											  } else {...}
+											}
+										 }
+								</code></pre>
+							</section>
+							<section>
+									<h3>commitLifeCycles</h3>
+									<a href="https://github.com/facebook/react/blob/487f4bf2ee7c86176637544c5473328f96ca0ba2/packages/react-reconciler/src/ReactFiberCommitWork.js#L383">commitLifeCycles github link</a>
+									<pre><code data-trim data-noescape>
+											function commitLifeCycles(finishedRoot, current, ...) {
+												...
+												switch (finishedWork.tag) {
+												  case FunctionComponent: {...}
+												  case ClassComponent: {
+													 const instance = finishedWork.stateNode;
+													 if (finishedWork.effectTag & Update) {
+														if (current === null) {
+														  instance.componentDidMount();
+														} else {
+														  ...
+														  <mark>instance.componentDidUpdate</mark>();
+														}
+													 }
+												  }
+												  case HostComponent: {...}
+												  case ...
+											 }
+									</code></pre>
+							</section>
+							<section>
+									<pre><code data-trim data-noescape>
+											root.current = finishedWork;
+									</code></pre>
+							</section>
+							<section>
+									<h2>Спасибо</h2>
+									<p><a target="_blank" href="https://twitter.com/calacitizen">twitter.com/calacitizen</a></p>
+									<p><a target="_blank" href="https://github.com/calacitizen">github.com/calacitizen</a></p>
+								</section>
+							
 		</div>
+	</div>
 
-		<script src="js/reveal.js"></script>
+	<script src="js/reveal.js"></script>
 
-		<script>
-			// More info about config & dependencies:
-			// - https://github.com/hakimel/reveal.js#configuration
-			// - https://github.com/hakimel/reveal.js#dependencies
-			Reveal.initialize({
+	<script>
+		// More info about config & dependencies:
+		// - https://github.com/hakimel/reveal.js#configuration
+		// - https://github.com/hakimel/reveal.js#dependencies
+		Reveal.initialize({
+				controls: true,
+				progress: true,
+				center: true,
+				hash: true,
+
+				transition: 'slide', // none/fade/slide/convex/concave/zoom
+
+				// More info https://github.com/hakimel/reveal.js#dependencies
 				dependencies: [
-					{ src: 'plugin/markdown/marked.js' },
-					{ src: 'plugin/markdown/markdown.js' },
-					{ src: 'plugin/notes/notes.js', async: true },
-					{ src: 'plugin/highlight/highlight.js', async: true }
+					{ src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/highlight/highlight.js', async: true },
+					{ src: 'plugin/search/search.js', async: true },
+					{ src: 'plugin/zoom-js/zoom.js', async: true },
+					{ src: 'plugin/notes/notes.js', async: true }
 				]
 			});
-		</script>
-	</body>
+	</script>
+</body>
+
 </html>
